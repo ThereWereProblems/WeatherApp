@@ -2,9 +2,9 @@
 
   <rule id="rootRule">
     <ruleref uri="#Miasto"></ruleref>
-    <tag>out.Miasto=rules.latest();</tag>
+    <tag>out.Miasto;</tag>
     <ruleref uri="#Dzien"></ruleref>
-    <tag>out.Dzien=rules.latest();</tag>
+    <tag>out.Dzien;</tag>
   </rule>
 
   <rule id="Miasto">
@@ -70,7 +70,7 @@
   <rule id="Dzien">
     <one-of>
       <item>
-        Poneidziałek<tag>out="Poniedziałek"</tag>
+        Poniedziałek<tag>out="Poniedziałek"</tag>
       </item>
       <item>
         Wtorek<tag>out="Wtorek"</tag>

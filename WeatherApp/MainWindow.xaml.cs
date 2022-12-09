@@ -84,39 +84,9 @@ namespace WeatherApp
             sre.SpeechRecognized += Sre_SpeechRecognized;
             sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected;
 
-            Choices pogoda_type = new Choices();
-            {
-                pogoda_type.Add("Poniedziałek");
-                pogoda_type.Add("Wtorek");
-                pogoda_type.Add("Środa");
-                pogoda_type.Add("Czwartek");
-                pogoda_type.Add("Piątek");
-                pogoda_type.Add("Sobota");
-                pogoda_type.Add("Niedziela");
-                pogoda_type.Add("Białystok");
-                pogoda_type.Add("Bydgoszcz");
-                pogoda_type.Add("Gdańsk");
-                pogoda_type.Add("Gorzów Wielkopolski");
-                pogoda_type.Add("Katowice");
-                pogoda_type.Add("Kielce");
-                pogoda_type.Add("Kraków");
-                pogoda_type.Add("Lublin");
-                pogoda_type.Add("Łódź");
-                pogoda_type.Add("Olsztyn");
-                pogoda_type.Add("Opole");
-                pogoda_type.Add("Poznań");
-                pogoda_type.Add("Rzeszów");
-                pogoda_type.Add("Szczecin");
-                pogoda_type.Add("Toruń");
-                pogoda_type.Add("Warszawa");
-                pogoda_type.Add("Wrocław");
-                pogoda_type.Add("Zielona Góra");
-            }
-
-            GrammarBuilder grammar_stop_builder = new GrammarBuilder();
-            grammar_stop_builder.Append(pogoda_type);
-            Grammar stop_grammar = new Grammar(grammar_stop_builder);
-            sre.LoadGrammarAsync(stop_grammar);
+            Grammar stop_grammar = new Grammar(".\\Grammar\\Grammar.xml");
+            stop_grammar.Enabled = true;
+            sre.LoadGrammar(stop_grammar);
             ss.Speak("Powiedz nam dla jakiego miasta i w którym dniu tygodnia chcesz poznać pogodę");
             sre.RecognizeAsync(RecognizeMode.Multiple);
         }
@@ -133,31 +103,35 @@ namespace WeatherApp
 
             if(confidence > 0.5)
             {
-                if(txt.IndexOf("Poniedziałek") >= 0)
+                string mst = e.Result.Semantics["Miasto"].Value.ToString();
+                string dzn = e.Result.Semantics["Dzien"].Value.ToString();
+
+               
+                if ("Poniedziałek" == dzn)
                 {
                     dzienTygodnia = DzienTygodnia.Poniedziałek;
                 }
-                if (txt.IndexOf("Wtorek") >= 0)
+                if ("Wtorek" == dzn)
                 {
                     dzienTygodnia = DzienTygodnia.Wtorek;
                 }
-                if (txt.IndexOf("Środa") >= 0)
+                if ("Środa" == dzn)
                 {
                     dzienTygodnia = DzienTygodnia.Środa;
                 }
-                if (txt.IndexOf("Czwartek") >= 0)
+                if ("Czwartek" == dzn)
                 {
                     dzienTygodnia = DzienTygodnia.Czwartek;
                 }
-                if (txt.IndexOf("Piątek") >= 0)
+                if ("Piątek" == dzn)
                 {
                     dzienTygodnia = DzienTygodnia.Piątek;
                 }
-                if (txt.IndexOf("Sobota") >= 0)
+                if ("Sobota" == dzn)
                 {
                     dzienTygodnia = DzienTygodnia.Sobota;
                 }
-                if (txt.IndexOf("Niedziela") >= 0)
+                if ("Niedziela" == dzn)
                 {
                     dzienTygodnia = DzienTygodnia.Niedziela;
                 }
@@ -165,75 +139,75 @@ namespace WeatherApp
 
        
 
-                if (txt.IndexOf("Białystok") >= 0)
+                if ("Białystok" == mst)
                 {
                     miasto = Miasto.Białystok;
                 }
-                if (txt.IndexOf("Bydgoszcz") >= 0)
+                if ("Bydgoszcz" == mst)
                 {
                     miasto = Miasto.Bydgoszcz;
                 }
-                if (txt.IndexOf("Gdańsk") >= 0)
+                if ("Gdańsk" == mst)
                 {
                     miasto = Miasto.Gdańsk;
                 }
-                if (txt.IndexOf("Gorzów Wielkopolski") >= 0)
+                if ("Gorzów Wielkopolski" == mst)
                 {
                     miasto = Miasto.GorzówWielkopolski;
                 }
-                if (txt.IndexOf("Katowice") >= 0)
+                if ("Katowice" == mst)
                 {
                     miasto = Miasto.Katowice;
                 }
-                if (txt.IndexOf("Kielce") >= 0)
+                if ("Kielce" == mst)
                 {
                     miasto = Miasto.Kielce;
                 }
-                if (txt.IndexOf("Kraków") >= 0)
+                if ("Kraków" == mst)
                 {
                     miasto = Miasto.Kraków;
                 }
-                if (txt.IndexOf("Lublin") >= 0)
+                if ("Lublin" == mst)
                 {
                     miasto = Miasto.Lublin;
                 }
-                if (txt.IndexOf("Łódź") >= 0)
+                if ("Łódź" == mst)
                 {
                     miasto = Miasto.Łódź;
                 }
-                if (txt.IndexOf("Olsztyn") >= 0)
+                if ("Olsztyn" == mst)
                 {
                     miasto = Miasto.Olsztyn;
                 }
-                if (txt.IndexOf("Opole") >= 0)
+                if ("Opole" == mst)
                 {
                     miasto = Miasto.Opole;
                 }
-                if (txt.IndexOf("Poznań") >= 0)
+                if ("Poznań" == mst)
                 {
                     miasto = Miasto.Poznań;
                 }
-                if (txt.IndexOf("Rzeszów") >= 0)
+                if ("Rzeszów" == mst)
                 {
                     miasto = Miasto.Rzeszów;
                 }
-                if (txt.IndexOf("Szczecin") >= 0)
+                if ("Szczecin" == mst)
                 {
                     miasto = Miasto.Szczecin;
                 }
-                if (txt.IndexOf("Toruń") >= 0)
+                if ("Toruń" == mst)
                 {
                     miasto = Miasto.Toruń;
                 }
-                if (txt.IndexOf("Warszawa") >= 0)
+                if ("Warszawa" == mst)
                 {
                     miasto = Miasto.Warszawa;
                 }
-                if (txt.IndexOf("Wrocław") >= 0)
+                if ("Wrocław" == mst)
                 {
                     miasto = Miasto.Wrocław;
                 }
-                if (txt.IndexOf("Zielona Góra") >= 0)
+                if ("Zielona Góra" == mst)
                 {
                     miasto = Miasto.ZielonaGóra;
                 }
@@ -244,13 +218,11 @@ namespace WeatherApp
                 sre.SpeechRecognized -= Sre_SpeechRecognized;
                 sre.SpeechRecognitionRejected -= Sre_SpeechRecognitionRejected;
                 sre.UnloadAllGrammars();
-                Choices choices = new Choices();
-                choices.Add("Tak");
-                choices.Add("Nie");
-                GrammarBuilder grammar_potw = new GrammarBuilder();
-                grammar_potw.Append(choices);
-                Grammar new_grammar_potw = new Grammar(grammar_potw);
-                sre.LoadGrammar(new_grammar_potw);
+
+                Grammar stop_grammar = new Grammar(".\\Grammar\\Grammar2.xml");
+                stop_grammar.Enabled = true;
+                sre.LoadGrammar(stop_grammar);
+
                 sre.SpeechRecognized += Sre_SpeechRecognized_potw;
                 sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected_potw;
                 ss.Speak("Potwierdz wprowadzone informacje");
@@ -303,38 +275,9 @@ namespace WeatherApp
             sre.SpeechRecognized -= Sre_SpeechRecognized_potw;
             sre.SpeechRecognitionRejected -= Sre_SpeechRecognitionRejected_potw;
             sre.UnloadAllGrammars();
-            Choices pogoda_type = new Choices();
-            { 
-                pogoda_type.Add("Poniedziałek");
-                pogoda_type.Add("Wtorek");
-                pogoda_type.Add("Środa");
-                pogoda_type.Add("Czwartek");
-                pogoda_type.Add("Piątek");
-                pogoda_type.Add("Sobota");
-                pogoda_type.Add("Niedziela");
-                pogoda_type.Add("Białystok");
-                pogoda_type.Add("Bydgoszcz");
-                pogoda_type.Add("Gdańsk");
-                pogoda_type.Add("Gorzów Wielkopolski");
-                pogoda_type.Add("Katowice");
-                pogoda_type.Add("Kielce");
-                pogoda_type.Add("Kraków");
-                pogoda_type.Add("Lublin");
-                pogoda_type.Add("Łódź");
-                pogoda_type.Add("Olsztyn");
-                pogoda_type.Add("Opole");
-                pogoda_type.Add("Poznań");
-                pogoda_type.Add("Rzeszów");
-                pogoda_type.Add("Szczecin");
-                pogoda_type.Add("Toruń");
-                pogoda_type.Add("Warszawa");
-                pogoda_type.Add("Wrocław");
-                pogoda_type.Add("Zielona Góra");
-            }
-            GrammarBuilder grammar_stop_builder = new GrammarBuilder();
-            grammar_stop_builder.Append(pogoda_type);
-            Grammar stop_grammar = new Grammar(grammar_stop_builder);
-            sre.LoadGrammarAsync(stop_grammar);
+            Grammar stop_grammar = new Grammar(".\\Grammar\\Grammar.xml");
+            stop_grammar.Enabled = true;
+            sre.LoadGrammar(stop_grammar);
             sre.SpeechRecognized += Sre_SpeechRecognized;
             sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected;
             ss.Speak("Powiedz nam dla jakiego miasta i w którym dniu tygodnia chcesz poznać pogodę");

@@ -1,0 +1,22 @@
+﻿<grammar version="1.0" xml:lang="pl-pl" root="rootRule" xmlns="http://www.w3.org/2001/06/grammar" tag-format="semantics/1.0">
+
+	<rule id="rootRule">
+		<ruleref uri="#Odpowiedz"></ruleref>
+		<tag>out.Odpowiedz=rules.latest();</tag>
+	</rule>
+
+	<rule id="Odpowiedz">
+		<one-of>
+			<item>
+				Tak<tag>out="Tak"</tag>
+			</item>
+			<item>
+				Tak<tag>out="Potwierdzam"</tag>
+			</item>
+			<item>
+				Nie<tag>out="Nie"</tag>
+			</item>
+		</one-of>
+	</rule>
+
+</grammar>
