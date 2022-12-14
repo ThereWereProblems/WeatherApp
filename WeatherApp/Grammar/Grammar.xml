@@ -1,13 +1,13 @@
 ﻿<grammar version="1.0" xml:lang="pl-pl" root="rootRule" xmlns="http://www.w3.org/2001/06/grammar" tag-format="semantics/1.0">
 
   <rule id="rootRule">
-    <ruleref uri="#Miasto"></ruleref>
-    <tag>out.Miasto;</tag>
-    <ruleref uri="#Dzien"></ruleref>
-    <tag>out.Dzien;</tag>
+	  <ruleref uri="#First"></ruleref>
+	  <tag>out.FirstWord=rules.latest();</tag>
+	  <ruleref uri="#Second"></ruleref>
+	  <tag>out.SecondWord=rules.latest();</tag>
   </rule>
 
-  <rule id="Miasto">
+  <rule id="FirstWord">
     <one-of>
       <item>
         Białystok<tag>out="Białystok"</tag>
@@ -63,12 +63,6 @@
       <item>
         Zielona Góra<tag>out="Zielona Góra"</tag>
       </item>
-    </one-of>
-  </rule>
-
-
-  <rule id="Dzien">
-    <one-of>
       <item>
         Poniedziałek<tag>out="Poniedziałek"</tag>
       </item>
@@ -101,5 +95,94 @@
       </item>
     </one-of>
   </rule>
+
+	<rule id="SecondWord">
+		<one-of>
+			<item>
+				Białystok<tag>out="Białystok"</tag>
+			</item>
+			<item>
+				Bydgoszcz<tag>out="Bydgoszcz"</tag>
+			</item>
+			<item>
+				Gdańsk<tag>out="Gdańsk"</tag>
+			</item>
+			<item>
+				Gorzów Wielkopolski<tag>out="Gorzów Wielkopolski"</tag>
+			</item>
+			<item>
+				Katowice<tag>out="Katowice"</tag>
+			</item>
+			<item>
+				Kielce<tag>out="Kielce"</tag>
+			</item>
+			<item>
+				Kraków<tag>out="Kraków"</tag>
+			</item>
+			<item>
+				Lublin<tag>out="Lublin"</tag>
+			</item>
+			<item>
+				Łódź<tag>out="Łódź"</tag>
+			</item>
+			<item>
+				Olsztyn<tag>out="Olsztyn"</tag>
+			</item>
+			<item>
+				Opole<tag>out="Opole"</tag>
+			</item>
+			<item>
+				Poznań<tag>out="Poznań"</tag>
+			</item>
+			<item>
+				Rzeszów<tag>out="Rzeszów"</tag>
+			</item>
+			<item>
+				Szczecin<tag>out="Szczecin"</tag>
+			</item>
+			<item>
+				Toruń<tag>out="Toruń"</tag>
+			</item>
+			<item>
+				Warszawa<tag>out="Warszawa"</tag>
+			</item>
+			<item>
+				Wrocław<tag>out="Wrocław"</tag>
+			</item>
+			<item>
+				Zielona Góra<tag>out="Zielona Góra"</tag>
+			</item>
+			<item>
+				Poniedziałek<tag>out="Poniedziałek"</tag>
+			</item>
+			<item>
+				Wtorek<tag>out="Wtorek"</tag>
+			</item>
+			<item>
+				Środa<tag>out="Środa"</tag>
+			</item>
+			<item>
+				Czwartek<tag>out="Czwartek"</tag>
+			</item>
+			<item>
+				Piątek<tag>out="Piątek"</tag>
+			</item>
+			<item>
+				Sobota<tag>out="Sobota"</tag>
+			</item>
+			<item>
+				Niedziela<tag>out="Niedziela"</tag>
+			</item>
+			<item>
+				Dziś<tag>out="Dziś"</tag>
+			</item>
+			<item>
+				Jutro<tag>out="Jutro"</tag>
+			</item>
+			<item>
+				Pojutrze<tag>out="Pojutrze"</tag>
+			</item>
+		</one-of>
+	</rule>
 
 </grammar>
