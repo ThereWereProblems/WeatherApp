@@ -1,0 +1,65 @@
+﻿<grammar version="1.0" xml:lang="pl-pl" root="rootRule" xmlns="http://www.w3.org/2001/06/grammar" tag-format="semantics/1.0">
+	<rule id="rootRule">
+		<ruleref uri="#First"></ruleref>
+		<tag>out.First=rules.latest();</tag>
+	</rule>
+
+	<rule id="First">
+		<one-of>
+			<item>
+				Białystok<tag>out="Białystok"</tag>
+			</item>
+			<item>
+				Bydgoszcz<tag>out="Bydgoszcz"</tag>
+			</item>
+			<item>
+				Gdańsk<tag>out="Gdańsk"</tag>
+			</item>
+			<item>
+				Gorzów Wielkopolski<tag>out="Gorzów Wielkopolski"</tag>
+			</item>
+			<item>
+				Katowice<tag>out="Katowice"</tag>
+			</item>
+			<item>
+				Kielce<tag>out="Kielce"</tag>
+			</item>
+			<item>
+				Kraków<tag>out="Kraków"</tag>
+			</item>
+			<item>
+				Lublin<tag>out="Lublin"</tag>
+			</item>
+			<item>
+				Łódź<tag>out="Łódź"</tag>
+			</item>
+			<item>
+				Olsztyn<tag>out="Olsztyn"</tag>
+			</item>
+			<item>
+				Opole<tag>out="Opole"</tag>
+			</item>
+			<item>
+				Poznań<tag>out="Poznań"</tag>
+			</item>
+			<item>
+				Rzeszów<tag>out="Rzeszów"</tag>
+			</item>
+			<item>
+				Szczecin<tag>out="Szczecin"</tag>
+			</item>
+			<item>
+				Toruń<tag>out="Toruń"</tag>
+			</item>
+			<item>
+				Warszawa<tag>out="Warszawa"</tag>
+			</item>
+			<item>
+				Wrocław<tag>out="Wrocław"</tag>
+			</item>
+			<item>
+				Zielona Góra<tag>out="Zielona Góra"</tag>
+			</item>
+		</one-of>
+	</rule>
+</grammar>

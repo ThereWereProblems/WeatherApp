@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using System.Net.Http.Headers;
 using System.Reflection.Emit;
 using System.Security.Policy;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -73,7 +75,7 @@ namespace WeatherApp
         Miasto miasto;
         static HttpClient client;
 
-        Dictionary<Miasto, Locate> locations; 
+        Dictionary<Miasto, Locate> locations;
 
         public MainWindow()
         {
@@ -81,21 +83,15 @@ namespace WeatherApp
             sre = new SpeechRecognitionEngine();
             InitializeComponent();
             label_today.Content = "Dziś: " + DateTime.Now.ToString("dddd, dd MMMM yyyy");
+            panel.Visibility = Visibility.Hidden;
 
-            
-
-            //ss.SetOutputToDefaultAudioDevice();
-            //ss.Speak("Witamy w naszej stacji pogodowej");
-            //CultureInfo ci = new CultureInfo("pl-PL");
-            //sre = new SpeechRecognitionEngine(ci);
-            //sre.SetInputToDefaultAudioDevice();
-            //worker.DoWork += Worker_DoWork; 
-            //worker.RunWorkerAsync();
+            worker.DoWork += Worker_DoWork; 
+            worker.RunWorkerAsync();
 
             client = new HttpClient();
             locations = new Dictionary<Miasto, Locate>();
             UpdateDictionary();
-            FakeInvoke();
+            //FakeInvoke();
         }
 
         private void FakeInvoke()
@@ -108,19 +104,20 @@ namespace WeatherApp
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            this.Dispatcher.BeginInvoke(new Action(async () => {
-                //icon_weather.Source = await LoadWebP(
-                //    "http://cdn.weatherapi.com/weather/64x64/day/311.png");
-            }));
+            ss.SetOutputToDefaultAudioDevice();
+            ss.Speak("Witamy w naszej stacji pogodowej");
+            CultureInfo ci = new CultureInfo("pl-PL");
+            sre = new SpeechRecognitionEngine(ci);
+            sre.SetInputToDefaultAudioDevice();
 
-            //sre.SpeechRecognized += Sre_SpeechRecognized;
-            //sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected;
+            sre.SpeechRecognized += Sre_SpeechRecognized;
+            sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected;
 
-            //Grammar stop_grammar = new Grammar(".\\Grammar\\Grammar.xml");
-            //stop_grammar.Enabled = true;
-            //sre.LoadGrammar(stop_grammar);
-            //ss.Speak("Powiedz nam dla jakiego miasta i w którym dniu tygodnia chcesz poznać pogodę");
-            //sre.RecognizeAsync(RecognizeMode.Multiple);
+            Grammar stop_grammar = new Grammar(".\\Grammar\\MainGrammar.xml");
+            stop_grammar.Enabled = true;
+            sre.LoadGrammar(stop_grammar);
+            ss.Speak("Powiedz nam dla jakiego miasta i w którym dniu tygodnia chcesz poznać pogodę");
+            sre.RecognizeAsync(RecognizeMode.Multiple);
         }
 
         private void Sre_SpeechRecognitionRejected(object sender, SpeechRecognitionRejectedEventArgs e)
@@ -133,138 +130,318 @@ namespace WeatherApp
             string txt = e.Result.Text;
             float confidence = e.Result.Confidence;
 
-            if(confidence > 0.5)
+            if (confidence > 0.5)
             {
-                string mst = e.Result.Semantics["First"].Value.ToString();
-                string dzn = e.Result.Semantics["Second"].Value.ToString();
+                string frst = e.Result.Semantics["First"].Value.ToString();
+                string scnd = e.Result.Semantics["Second"].Value.ToString();
 
-               
-                if ("Poniedziałek" == dzn)
-                {
+
+
+                if ("Dziś" == frst)
+                    dzienTygodnia = (DzienTygodnia)(int)DateTime.Now.DayOfWeek;
+                else if ("Jutro" == frst)
+                    dzienTygodnia = (DzienTygodnia)(int)DateTime.Now.AddDays(1).DayOfWeek;
+                else if ("Pojutrze" == frst)
+                    dzienTygodnia = (DzienTygodnia)(int)DateTime.Now.AddDays(2).DayOfWeek;
+                else if ("Poniedziałek" == frst)
                     dzienTygodnia = DzienTygodnia.Poniedziałek;
-                }
-                if ("Wtorek" == dzn)
-                {
+                else if ("Wtorek" == frst)
                     dzienTygodnia = DzienTygodnia.Wtorek;
-                }
-                if ("Środa" == dzn)
-                {
+                else if ("Środa" == frst)
                     dzienTygodnia = DzienTygodnia.Środa;
-                }
-                if ("Czwartek" == dzn)
-                {
+                else if ("Czwartek" == frst)
                     dzienTygodnia = DzienTygodnia.Czwartek;
-                }
-                if ("Piątek" == dzn)
-                {
+                else if ("Piątek" == frst)
                     dzienTygodnia = DzienTygodnia.Piątek;
-                }
-                if ("Sobota" == dzn)
-                {
+                else if ("Sobota" == frst)
                     dzienTygodnia = DzienTygodnia.Sobota;
-                }
-                if ("Niedziela" == dzn)
-                {
+                else if ("Niedziela" == frst)
                     dzienTygodnia = DzienTygodnia.Niedziela;
-                }
-
-
-       
-
-                if ("Białystok" == mst)
-                {
+                else if ("Białystok" == frst)
                     miasto = Miasto.Białystok;
-                }
-                if ("Bydgoszcz" == mst)
-                {
+                else if ("Bydgoszcz" == frst)
                     miasto = Miasto.Bydgoszcz;
-                }
-                if ("Gdańsk" == mst)
-                {
+                else if ("Gdańsk" == frst)
                     miasto = Miasto.Gdańsk;
-                }
-                if ("Gorzów Wielkopolski" == mst)
-                {
+                else if ("Gorzów Wielkopolski" == frst)
                     miasto = Miasto.GorzówWielkopolski;
-                }
-                if ("Katowice" == mst)
-                {
+                else if ("Katowice" == frst)
                     miasto = Miasto.Katowice;
-                }
-                if ("Kielce" == mst)
-                {
+                else if ("Kielce" == frst)
                     miasto = Miasto.Kielce;
-                }
-                if ("Kraków" == mst)
-                {
+                else if ("Kraków" == frst)
                     miasto = Miasto.Kraków;
-                }
-                if ("Lublin" == mst)
-                {
+                else if ("Lublin" == frst)
                     miasto = Miasto.Lublin;
-                }
-                if ("Łódź" == mst)
-                {
+                else if ("Łódź" == frst)
                     miasto = Miasto.Łódź;
-                }
-                if ("Olsztyn" == mst)
-                {
+                else if ("Olsztyn" == frst)
                     miasto = Miasto.Olsztyn;
-                }
-                if ("Opole" == mst)
-                {
+                else if ("Opole" == frst)
                     miasto = Miasto.Opole;
-                }
-                if ("Poznań" == mst)
-                {
+                else if ("Poznań" == frst)
                     miasto = Miasto.Poznań;
-                }
-                if ("Rzeszów" == mst)
-                {
+                else if ("Rzeszów" == frst)
                     miasto = Miasto.Rzeszów;
-                }
-                if ("Szczecin" == mst)
-                {
+                else if ("Szczecin" == frst)
                     miasto = Miasto.Szczecin;
-                }
-                if ("Toruń" == mst)
-                {
+                else if ("Toruń" == frst)
                     miasto = Miasto.Toruń;
-                }
-                if ("Warszawa" == mst)
-                {
+                else if ("Warszawa" == frst)
                     miasto = Miasto.Warszawa;
-                }
-                if ("Wrocław" == mst)
-                {
+                else if ("Wrocław" == frst)
                     miasto = Miasto.Wrocław;
-                }
-                if ("Zielona Góra" == mst)
-                {
+                else if ("Zielona Góra" == frst)
                     miasto = Miasto.ZielonaGóra;
-                }
+
+                if ("Dziś" == scnd)
+                    dzienTygodnia = (DzienTygodnia)(int)DateTime.Now.DayOfWeek;
+                else if ("Jutro" == scnd)
+                    dzienTygodnia = (DzienTygodnia)(int)DateTime.Now.AddDays(1).DayOfWeek;
+                else if ("Pojutrze" == scnd)
+                    dzienTygodnia = (DzienTygodnia)(int)DateTime.Now.AddDays(2).DayOfWeek;
+                else if ("Poniedziałek" == scnd)
+                    dzienTygodnia = DzienTygodnia.Poniedziałek;
+                else if ("Wtorek" == scnd)
+                    dzienTygodnia = DzienTygodnia.Wtorek;
+                else if ("Środa" == scnd)
+                    dzienTygodnia = DzienTygodnia.Środa;
+                else if ("Czwartek" == scnd)
+                    dzienTygodnia = DzienTygodnia.Czwartek;
+                else if ("Piątek" == scnd)
+                    dzienTygodnia = DzienTygodnia.Piątek;
+                else if ("Sobota" == scnd)
+                    dzienTygodnia = DzienTygodnia.Sobota;
+                else if ("Niedziela" == scnd)
+                    dzienTygodnia = DzienTygodnia.Niedziela;
+                else if ("Białystok" == scnd)
+                    miasto = Miasto.Białystok;
+                else if ("Bydgoszcz" == scnd)
+                    miasto = Miasto.Bydgoszcz;
+                else if ("Gdańsk" == scnd)
+                    miasto = Miasto.Gdańsk;
+                else if ("Gorzów Wielkopolski" == scnd)
+                    miasto = Miasto.GorzówWielkopolski;
+                else if ("Katowice" == scnd)
+                    miasto = Miasto.Katowice;
+                else if ("Kielce" == scnd)
+                    miasto = Miasto.Kielce;
+                else if ("Kraków" == scnd)
+                    miasto = Miasto.Kraków;
+                else if ("Lublin" == scnd)
+                    miasto = Miasto.Lublin;
+                else if ("Łódź" == scnd)
+                    miasto = Miasto.Łódź;
+                else if ("Olsztyn" == scnd)
+                    miasto = Miasto.Olsztyn;
+                else if ("Opole" == scnd)
+                    miasto = Miasto.Opole;
+                else if ("Poznań" == scnd)
+                    miasto = Miasto.Poznań;
+                else if ("Rzeszów" == scnd)
+                    miasto = Miasto.Rzeszów;
+                else if ("Szczecin" == scnd)
+                    miasto = Miasto.Szczecin;
+                else if ("Toruń" == scnd)
+                    miasto = Miasto.Toruń;
+                else if ("Warszawa" == scnd)
+                    miasto = Miasto.Warszawa;
+                else if ("Wrocław" == scnd)
+                    miasto = Miasto.Wrocław;
+                else if ("Zielona Góra" == scnd)
+                    miasto = Miasto.ZielonaGóra;
+
             }
 
-            if(miasto != Miasto.Brak && dzienTygodnia != DzienTygodnia.Brak)
+            if (miasto != Miasto.Brak && dzienTygodnia != DzienTygodnia.Brak)
             {
                 sre.SpeechRecognized -= Sre_SpeechRecognized;
                 sre.SpeechRecognitionRejected -= Sre_SpeechRecognitionRejected;
                 sre.UnloadAllGrammars();
 
-                Grammar stop_grammar = new Grammar(".\\Grammar\\Grammar2.xml");
+                Grammar stop_grammar = new Grammar(".\\Grammar\\ConfirmGrammar.xml");
                 stop_grammar.Enabled = true;
                 sre.LoadGrammar(stop_grammar);
 
                 sre.SpeechRecognized += Sre_SpeechRecognized_potw;
                 sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected_potw;
-                ss.Speak("Potwierdz wprowadzone informacje");
+                ss.Speak("Twój wybór to " + miasto + ", pogoda na " + dzienTygodnia + "Potwierdz wprowadzone informacje");
 
             }
-            else if(miasto == Miasto.Brak)
+            else if (miasto == Miasto.Brak)
+            {
+                sre.SpeechRecognized -= Sre_SpeechRecognized;
+                sre.SpeechRecognitionRejected -= Sre_SpeechRecognitionRejected;
+                sre.UnloadAllGrammars();
+
+                Grammar stop_grammar = new Grammar(".\\Grammar\\CityGrammar.xml");
+                stop_grammar.Enabled = true;
+                sre.LoadGrammar(stop_grammar);
+
+                sre.SpeechRecognized += Sre_SpeechRecognized_city;
+                sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected_city;
+
+                ss.Speak("Dla jakiego miasta chcesz usłyszeć pogodę?");
+            }
+            else if (dzienTygodnia == DzienTygodnia.Brak)
+            {
+                sre.SpeechRecognized -= Sre_SpeechRecognized;
+                sre.SpeechRecognitionRejected -= Sre_SpeechRecognitionRejected;
+                sre.UnloadAllGrammars();
+
+                Grammar stop_grammar = new Grammar(".\\Grammar\\DayGrammar.xml");
+                stop_grammar.Enabled = true;
+                sre.LoadGrammar(stop_grammar);
+
+                sre.SpeechRecognized += Sre_SpeechRecognized_day;
+                sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected_day;
+
+                ss.Speak("Dla jakiego dnia chcesz usłyszeć pogodę?");
+            }
+        }
+
+        private void Sre_SpeechRecognitionRejected_city(object sender, SpeechRecognitionRejectedEventArgs e)
+        {
+            ss.Speak("Nie rozumiem, dla jakiego miasta chcesz usłyszeć pogodę?");
+        }
+
+        private void Sre_SpeechRecognized_city(object sender, SpeechRecognizedEventArgs e)
+        {
+            string txt = e.Result.Text;
+            float confidence = e.Result.Confidence;
+
+            if (confidence > 0.5)
+            {
+                string frst = e.Result.Semantics["First"].Value.ToString();
+
+                if ("Białystok" == frst)
+                    miasto = Miasto.Białystok;
+                else if ("Bydgoszcz" == frst)
+                    miasto = Miasto.Bydgoszcz;
+                else if ("Gdańsk" == frst)
+                    miasto = Miasto.Gdańsk;
+                else if ("Gorzów Wielkopolski" == frst)
+                    miasto = Miasto.GorzówWielkopolski;
+                else if ("Katowice" == frst)
+                    miasto = Miasto.Katowice;
+                else if ("Kielce" == frst)
+                    miasto = Miasto.Kielce;
+                else if ("Kraków" == frst)
+                    miasto = Miasto.Kraków;
+                else if ("Lublin" == frst)
+                    miasto = Miasto.Lublin;
+                else if ("Łódź" == frst)
+                    miasto = Miasto.Łódź;
+                else if ("Olsztyn" == frst)
+                    miasto = Miasto.Olsztyn;
+                else if ("Opole" == frst)
+                    miasto = Miasto.Opole;
+                else if ("Poznań" == frst)
+                    miasto = Miasto.Poznań;
+                else if ("Rzeszów" == frst)
+                    miasto = Miasto.Rzeszów;
+                else if ("Szczecin" == frst)
+                    miasto = Miasto.Szczecin;
+                else if ("Toruń" == frst)
+                    miasto = Miasto.Toruń;
+                else if ("Warszawa" == frst)
+                    miasto = Miasto.Warszawa;
+                else if ("Wrocław" == frst)
+                    miasto = Miasto.Wrocław;
+                else if ("Zielona Góra" == frst)
+                    miasto = Miasto.ZielonaGóra;
+            }
+
+            if (miasto != Miasto.Brak && dzienTygodnia != DzienTygodnia.Brak)
+            {
+                sre.SpeechRecognized -= Sre_SpeechRecognized_city;
+                sre.SpeechRecognitionRejected -= Sre_SpeechRecognitionRejected_city;
+                sre.UnloadAllGrammars();
+
+                Grammar stop_grammar = new Grammar(".\\Grammar\\ConfirmGrammar.xml");
+                stop_grammar.Enabled = true;
+                sre.LoadGrammar(stop_grammar);
+
+                sre.SpeechRecognized += Sre_SpeechRecognized_potw;
+                sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected_potw;
+                ss.Speak("Twój wybór to " + miasto + ", pogoda na " + dzienTygodnia + "Potwierdz wprowadzone informacje");
+
+            }
+            else if (miasto == Miasto.Brak)
             {
                 ss.Speak("Dla jakiego miasta chcesz usłyszeć pogodę?");
             }
             else if (dzienTygodnia == DzienTygodnia.Brak)
+            {
+                sre.SpeechRecognized -= Sre_SpeechRecognized_city;
+                sre.SpeechRecognitionRejected -= Sre_SpeechRecognitionRejected_city;
+                sre.UnloadAllGrammars();
+
+                Grammar stop_grammar = new Grammar(".\\Grammar\\DayGrammar.xml");
+                stop_grammar.Enabled = true;
+                sre.LoadGrammar(stop_grammar);
+
+                sre.SpeechRecognized += Sre_SpeechRecognized_day;
+                sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected_day;
+
+                ss.Speak("Dla jakiego dnia chcesz usłyszeć pogodę?");
+            }
+        }
+
+        private void Sre_SpeechRecognitionRejected_day(object sender, SpeechRecognitionRejectedEventArgs e)
+        {
+            ss.Speak("Nie rozumiem, dla jakiego dnia chcesz usłyszeć pogodę?");
+        }
+
+        private void Sre_SpeechRecognized_day(object sender, SpeechRecognizedEventArgs e)
+        {
+            string txt = e.Result.Text;
+            float confidence = e.Result.Confidence;
+
+            if (confidence > 0.5)
+            {
+                string frst = e.Result.Semantics["First"].Value.ToString();
+
+
+                if ("Dziś" == frst)
+                    dzienTygodnia = (DzienTygodnia)(int)DateTime.Now.DayOfWeek;
+                else if ("Jutro" == frst)
+                    dzienTygodnia = (DzienTygodnia)(int)DateTime.Now.AddDays(1).DayOfWeek;
+                else if ("Pojutrze" == frst)
+                    dzienTygodnia = (DzienTygodnia)(int)DateTime.Now.AddDays(2).DayOfWeek;
+                else if ("Poniedziałek" == frst)
+                    dzienTygodnia = DzienTygodnia.Poniedziałek;
+                else if ("Wtorek" == frst)
+                    dzienTygodnia = DzienTygodnia.Wtorek;
+                else if ("Środa" == frst)
+                    dzienTygodnia = DzienTygodnia.Środa;
+                else if ("Czwartek" == frst)
+                    dzienTygodnia = DzienTygodnia.Czwartek;
+                else if ("Piątek" == frst)
+                    dzienTygodnia = DzienTygodnia.Piątek;
+                else if ("Sobota" == frst)
+                    dzienTygodnia = DzienTygodnia.Sobota;
+                else if ("Niedziela" == frst)
+                    dzienTygodnia = DzienTygodnia.Niedziela;
+            }
+
+            if (miasto != Miasto.Brak && dzienTygodnia != DzienTygodnia.Brak)
+            {
+                sre.SpeechRecognized -= Sre_SpeechRecognized_day;
+                sre.SpeechRecognitionRejected -= Sre_SpeechRecognitionRejected_day;
+                sre.UnloadAllGrammars();
+
+                Grammar stop_grammar = new Grammar(".\\Grammar\\ConfirmGrammar.xml");
+                stop_grammar.Enabled = true;
+                sre.LoadGrammar(stop_grammar);
+
+                sre.SpeechRecognized += Sre_SpeechRecognized_potw;
+                sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected_potw;
+
+                ss.Speak("Twój wybór to " + miasto + ", pogoda na " + dzienTygodnia + "Potwierdz wprowadzone informacje");
+
+            }
+            else if (miasto == Miasto.Brak)
             {
                 ss.Speak("Dla jakiego dnia chcesz usłyszeć pogodę?");
             }
@@ -282,62 +459,115 @@ namespace WeatherApp
 
             if (confidence > 0.5)
             {
-                if (txt.IndexOf("Tak") >= 0)
+                string frst = e.Result.Semantics["First"].Value.ToString();
+
+                if ("Tak" == frst)
                 {
-                    //GetWeather();
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        GetWeather();
+                    }));
+                    //this.Dispatcher.BeginInvoke(new Action(async () =>
+                    //{
+                    //}));
+
                 }
-                if (txt.IndexOf("Nie") >= 0)
+                else if ("Nie" == frst)
                 {
                     ClearSettings();
                 }
+                else
+                    ss.Speak("Nie rozumiem, potwierdz informacje");
             }
+            else
+                ss.Speak("Nie rozumiem, potwierdz informacje");
         }
 
         private async void GetWeather()
         {
-            label_city.Content = "Miasto: " + miasto;
+            string txt = "";
 
-            Locate loc = locations[miasto];
-            string path = "http://api.weatherapi.com/v1/forecast.json?key=181d5bb3b0404ddfa28214722221312&q=" + loc.lat.ToString().Replace(',', '.') + "," + loc.lon.ToString().Replace(',', '.') + "&days=7&aqi=no&alerts=no";
-
-            var json = await GetWeatherAsync(path);
-            Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(json);
-
-            DateTime date = DateTime.Now;
-            int dayOfWeek = (int)date.DayOfWeek;
-
-            int dz = ((int)dzienTygodnia);
-
-            int distant = dz - dayOfWeek;
-
-            if (distant < 0)
-                distant += 7;
-
-            if (distant > 2)
+            try
             {
-                //za odległa data
+                Locate loc = locations[miasto];
+                string path = "http://api.weatherapi.com/v1/forecast.json?key=181d5bb3b0404ddfa28214722221312&q=" + loc.lat.ToString().Replace(',', '.') 
+                    + "," + loc.lon.ToString().Replace(',', '.') + "&days=7&aqi=no&alerts=no";
+
+                var json = await GetWeatherAsync(path);
+                Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(json);
+
+                DateTime date = DateTime.Now;
+                int dayOfWeek = (int)date.DayOfWeek;
+
+                int dz = ((int)dzienTygodnia);
+
+                int distant = dz - dayOfWeek;
+
+                if (distant < 0)
+                    distant += 7;
+
+                if (distant > 2)
+                {
+                    ss.SpeakAsync("Zbyt odległą data aby pobrać pogodę, możesz usłyszeć podogę maksymalnie na dwa dni do przodu");
+                }
+                else
+                {
+                    label_city.Content = "Miasto: " + miasto;
+                    panel.Visibility = Visibility.Visible;
+                    SetMap();
+
+                    List<Forecastday> forecast = myDeserializedClass.forecast.forecastday;
+                    var forecastDay = forecast[distant].day;
+
+                    DateTime dateWeather = DateTime.ParseExact(forecast[distant].date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                    label_date.Content = "Data: " + dateWeather.ToString("dddd, dd MMMM yyyy");
+
+                    label_temp.Content = "Średnia temperatura: " + forecastDay.avgtemp_c + "℃";
+                    label_temp_max.Content = "Maksymalna temperatura: " + forecastDay.maxtemp_c + "℃";
+                    label_temp_min.Content = "Minimalna temperatura: " + forecastDay.mintemp_c + "℃";
+
+                    label_wiatr.Content = "Wiatr: " + forecastDay.maxwind_kph + "km/h";
+                    label_opad.Content = "Opady: " + forecastDay.totalprecip_mm + "mm";
+
+                    LoadIcon(forecastDay.condition.icon);
+
+                    string text = "Pogoda na " + dzienTygodnia + ", średzinia temperatura w dzień będzie wynosić ";
+                    if (forecastDay.avgtemp_c != 0)
+                    {
+                        if (forecastDay.avgtemp_c > 0)
+                            text += String.Join(" przecinek ", forecastDay.avgtemp_c.ToString().Split(',').ToArray()) + " stopni celsjusza.";
+                        else
+                            text += String.Join(" przecinek ", (forecastDay.avgtemp_c * -1).ToString().Split(',').ToArray()) + " stopni celsjusza.";
+                    }
+                    else
+                        text += "zero stopni celsjusza.";
+
+                    if (forecastDay.maxwind_kph > 0)
+                        text += " Porywy wiatru do " + String.Join(" przecinek ", forecastDay.maxwind_kph.ToString().Split(',').ToArray()) + " kilometrów na godzinę";
+                    else
+                        text += "Brak wiatru";
+
+                    if (forecastDay.totalprecip_mm > 0)
+                        text += ". Suma opadów wyniesie " + String.Join(" przecinek ", forecastDay.totalprecip_mm.ToString().Split(',').ToArray()) + " milimetrów.";
+                    else
+                        text += " oraz brak opadów.";
+
+                    txt = text;
+                    ss.SpeakAsync(txt);
+                }
+
+                //new Task(() => {
+                //    if (txt != "")
+                //        ss.SpeakAsync(txt);
+                //}).Start();
             }
-            else
+            catch (Exception)
             {
-                List<Forecastday> forecast = myDeserializedClass.forecast.forecastday;
-                var forecastDay = forecast[distant].day;
-
-                DateTime dateWeather = DateTime.ParseExact(forecast[distant].date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-
-                label_date.Content = "Data: " + dateWeather.ToString("dddd, dd MMMM yyyy");
-
-                label_temp.Content = "Średnia temperatura: " + forecastDay.avgtemp_c + "℃";
-                label_temp_max.Content = "Maksymalna temperatura: " + forecastDay.maxtemp_c + "℃";
-                label_temp_min.Content = "Minimalna temperatura: " + forecastDay.mintemp_c + "℃";
-
-                label_wiatr.Content = "Wiatr: " + forecastDay.maxwind_kph + "km/h";
-                label_opad.Content = "Opady: " + forecastDay.totalprecip_mm + "mm";
-
-                LoadIcon(forecastDay.condition.icon);
+                ss.Speak("Przepraszamy, wystąpił błąd serwera");
             }
 
-
-            //ClearSettings();
+            ClearSettings();
         }
 
         private void ClearSettings()
@@ -348,7 +578,7 @@ namespace WeatherApp
             sre.SpeechRecognized -= Sre_SpeechRecognized_potw;
             sre.SpeechRecognitionRejected -= Sre_SpeechRecognitionRejected_potw;
             sre.UnloadAllGrammars();
-            Grammar stop_grammar = new Grammar(".\\Grammar\\Grammar.xml");
+            Grammar stop_grammar = new Grammar(".\\Grammar\\MainGrammar.xml");
             stop_grammar.Enabled = true;
             sre.LoadGrammar(stop_grammar);
             sre.SpeechRecognized += Sre_SpeechRecognized;
@@ -388,6 +618,7 @@ namespace WeatherApp
             }
             return ss;
         }
+
         private void LoadIcon(string url)
         {
             // Create source.
@@ -398,6 +629,191 @@ namespace WeatherApp
             bi.EndInit();
             // Set the image source.
             icon_weather.Source = bi;
+        }
+
+        private void SetMap()
+        {
+            if (miasto == Miasto.Białystok)
+            {
+                label_bialystok.FontWeight = FontWeights.Bold;
+                label_bialystok.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_bialystok.FontWeight = FontWeights.Regular;
+                label_bialystok.Foreground = new SolidColorBrush(Colors.Black);
+
+            }
+            if (miasto == Miasto.Bydgoszcz)
+            {
+                label_bydgoszcz.FontWeight = FontWeights.Bold;
+                label_bydgoszcz.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_bydgoszcz.FontWeight = FontWeights.Regular;
+                label_bydgoszcz.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Gdańsk)
+            {
+                label_gdansk.FontWeight = FontWeights.Bold;
+                label_gdansk.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_gdansk.FontWeight = FontWeights.Regular;
+                label_gdansk.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.GorzówWielkopolski)
+            {
+                label_gorzow.FontWeight = FontWeights.Bold;
+                label_gorzow.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_gorzow.FontWeight = FontWeights.Regular;
+                label_gorzow.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Katowice)
+            {
+                label_katowice.FontWeight = FontWeights.Bold;
+                label_katowice.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_katowice.FontWeight = FontWeights.Regular;
+                label_katowice.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Kielce)
+            {
+                label_kielce.FontWeight = FontWeights.Bold;
+                label_kielce.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_kielce.FontWeight = FontWeights.Regular;
+                label_kielce.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Kraków)
+            {
+                label_krakow.FontWeight = FontWeights.Bold;
+                label_krakow.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_krakow.FontWeight = FontWeights.Regular;
+                label_krakow.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Lublin)
+            {
+                label_lublin.FontWeight = FontWeights.Bold;
+                label_lublin.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_lublin.FontWeight = FontWeights.Regular;
+                label_lublin.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Łódź)
+            {
+                label_lodz.FontWeight = FontWeights.Bold;
+                label_lodz.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_lodz.FontWeight = FontWeights.Regular;
+                label_lodz.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Olsztyn)
+            {
+                label_olsztyn.FontWeight = FontWeights.Bold;
+                label_olsztyn.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_olsztyn.FontWeight = FontWeights.Regular;
+                label_olsztyn.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Opole)
+            {
+                label_opole.FontWeight = FontWeights.Bold;
+                label_opole.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_opole.FontWeight = FontWeights.Regular;
+                label_opole.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Poznań)
+            {
+                label_poznan.FontWeight = FontWeights.Bold;
+                label_poznan.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_poznan.FontWeight = FontWeights.Regular;
+                label_poznan.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Rzeszów)
+            {
+                label_rzeszow.FontWeight = FontWeights.Bold;
+                label_rzeszow.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_rzeszow.FontWeight = FontWeights.Regular;
+                label_rzeszow.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Szczecin)
+            {
+                label_szczecin.FontWeight = FontWeights.Bold;
+                label_szczecin.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_szczecin.FontWeight = FontWeights.Regular;
+                label_szczecin.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Toruń)
+            {
+                label_torun.FontWeight = FontWeights.Bold;
+                label_torun.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_torun.FontWeight = FontWeights.Regular;
+                label_torun.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Warszawa)
+            {
+                label_warszawa.FontWeight = FontWeights.Bold;
+                label_warszawa.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_warszawa.FontWeight = FontWeights.Regular;
+                label_warszawa.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.Wrocław)
+            {
+                label_wroclaw.FontWeight = FontWeights.Bold;
+                label_wroclaw.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_wroclaw.FontWeight = FontWeights.Regular;
+                label_wroclaw.Foreground = new SolidColorBrush(Colors.Black);
+            }
+            if (miasto == Miasto.ZielonaGóra)
+            {
+                label_zielona.FontWeight = FontWeights.Bold;
+                label_zielona.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                label_zielona.FontWeight = FontWeights.Regular;
+                label_zielona.Foreground = new SolidColorBrush(Colors.Black);
+            }
         }
     }
 }

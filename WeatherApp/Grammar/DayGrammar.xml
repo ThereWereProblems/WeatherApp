@@ -1,0 +1,41 @@
+﻿<grammar version="1.0" xml:lang="pl-pl" root="rootRule" xmlns="http://www.w3.org/2001/06/grammar" tag-format="semantics/1.0">
+	<rule id="rootRule">
+		<ruleref uri="#First"></ruleref>
+		<tag>out.First=rules.latest();</tag>
+	</rule>
+
+	<rule id="First">
+		<one-of>
+			<item>
+				Poneidziałek<tag>out="Poniedziałek"</tag>
+			</item>
+			<item>
+				Wtorek<tag>out="Wtorek"</tag>
+			</item>
+			<item>
+				Środa<tag>out="Środa"</tag>
+			</item>
+			<item>
+				Czwartek<tag>out="Czwartek"</tag>
+			</item>
+			<item>
+				Piątek<tag>out="Piątek"</tag>
+			</item>
+			<item>
+				Sobota<tag>out="Sobota"</tag>
+			</item>
+			<item>
+				Niedziela<tag>out="Niedziela"</tag>
+			</item>
+			<item>
+				Dziś<tag>out="Dziś"</tag>
+			</item>
+			<item>
+				Jutro<tag>out="Jutro"</tag>
+			</item>
+			<item>
+				Pojutrze<tag>out="Pojutrze"</tag>
+			</item>
+		</one-of>
+	</rule>
+</grammar>
