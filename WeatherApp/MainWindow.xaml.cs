@@ -85,13 +85,32 @@ namespace WeatherApp
             label_today.Content = "Dziś: " + DateTime.Now.ToString("dddd, dd MMMM yyyy");
             panel.Visibility = Visibility.Hidden;
 
-            worker.DoWork += Worker_DoWork; 
-            worker.RunWorkerAsync();
+            //worker.DoWork += Worker_DoWork; 
+            //worker.RunWorkerAsync();
 
             client = new HttpClient();
             locations = new Dictionary<Miasto, Locate>();
             UpdateDictionary();
             //FakeInvoke();
+
+            new Task(async() =>
+            {
+                ss.SetOutputToDefaultAudioDevice();
+                ss.Speak("Witamy w naszej stacji pogodowej");
+                CultureInfo ci = new CultureInfo("pl-PL");
+                sre = new SpeechRecognitionEngine(ci);
+                sre.SetInputToDefaultAudioDevice();
+
+                sre.SpeechRecognized += Sre_SpeechRecognized;
+                sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected;
+
+                Grammar stop_grammar = new Grammar(".\\Grammar\\MainGrammar.xml");
+                stop_grammar.Enabled = true;
+                sre.LoadGrammar(stop_grammar);
+                ss.Speak("Powiedz nam dla jakiego miasta i w którym dniu tygodnia chcesz poznać pogodę");
+                sre.RecognizeAsync(RecognizeMode.Multiple);
+            }).Start();
+            
         }
 
         private void FakeInvoke()
@@ -463,14 +482,7 @@ namespace WeatherApp
 
                 if ("Tak" == frst)
                 {
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        GetWeather();
-                    }));
-                    //this.Dispatcher.BeginInvoke(new Action(async () =>
-                    //{
-                    //}));
-
+                    GetWeather();
                 }
                 else if ("Nie" == frst)
                 {
@@ -512,49 +524,55 @@ namespace WeatherApp
                 }
                 else
                 {
-                    label_city.Content = "Miasto: " + miasto;
-                    panel.Visibility = Visibility.Visible;
-                    SetMap();
-
-                    List<Forecastday> forecast = myDeserializedClass.forecast.forecastday;
-                    var forecastDay = forecast[distant].day;
-
-                    DateTime dateWeather = DateTime.ParseExact(forecast[distant].date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-
-                    label_date.Content = "Data: " + dateWeather.ToString("dddd, dd MMMM yyyy");
-
-                    label_temp.Content = "Średnia temperatura: " + forecastDay.avgtemp_c + "℃";
-                    label_temp_max.Content = "Maksymalna temperatura: " + forecastDay.maxtemp_c + "℃";
-                    label_temp_min.Content = "Minimalna temperatura: " + forecastDay.mintemp_c + "℃";
-
-                    label_wiatr.Content = "Wiatr: " + forecastDay.maxwind_kph + "km/h";
-                    label_opad.Content = "Opady: " + forecastDay.totalprecip_mm + "mm";
-
-                    LoadIcon(forecastDay.condition.icon);
-
-                    string text = "Pogoda na " + dzienTygodnia + ", średzinia temperatura w dzień będzie wynosić ";
-                    if (forecastDay.avgtemp_c != 0)
+                    Dispatcher.Invoke(new Action(() =>
                     {
-                        if (forecastDay.avgtemp_c > 0)
-                            text += String.Join(" przecinek ", forecastDay.avgtemp_c.ToString().Split(',').ToArray()) + " stopni celsjusza.";
+                        label_city.Content = "Miasto: " + miasto;
+                        panel.Visibility = Visibility.Visible;
+                        SetMap();
+
+                        List<Forecastday> forecast = myDeserializedClass.forecast.forecastday;
+                        var forecastDay = forecast[distant].day;
+
+                        DateTime dateWeather = DateTime.ParseExact(forecast[distant].date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                        label_date.Content = "Data: " + dateWeather.ToString("dddd, dd MMMM yyyy");
+
+                        label_temp.Content = "Średnia temperatura: " + forecastDay.avgtemp_c + "℃";
+                        label_temp_max.Content = "Maksymalna temperatura: " + forecastDay.maxtemp_c + "℃";
+                        label_temp_min.Content = "Minimalna temperatura: " + forecastDay.mintemp_c + "℃";
+
+                        label_wiatr.Content = "Wiatr: " + forecastDay.maxwind_kph + "km/h";
+                        label_opad.Content = "Opady: " + forecastDay.totalprecip_mm + "mm";
+
+                        LoadIcon(forecastDay.condition.icon);
+
+                        string text = "Pogoda na " + dzienTygodnia + ", średzinia temperatura w dzień będzie wynosić ";
+                        if (forecastDay.avgtemp_c != 0)
+                        {
+                            if (forecastDay.avgtemp_c > 0)
+                                text += String.Join(" przecinek ", forecastDay.avgtemp_c.ToString().Split(',').ToArray()) + " stopni celsjusza.";
+                            else
+                                text += String.Join(" przecinek ", (forecastDay.avgtemp_c * -1).ToString().Split(',').ToArray()) + " stopni celsjusza.";
+                        }
                         else
-                            text += String.Join(" przecinek ", (forecastDay.avgtemp_c * -1).ToString().Split(',').ToArray()) + " stopni celsjusza.";
-                    }
-                    else
-                        text += "zero stopni celsjusza.";
+                            text += "zero stopni celsjusza.";
 
-                    if (forecastDay.maxwind_kph > 0)
-                        text += " Porywy wiatru do " + String.Join(" przecinek ", forecastDay.maxwind_kph.ToString().Split(',').ToArray()) + " kilometrów na godzinę";
-                    else
-                        text += "Brak wiatru";
+                        if (forecastDay.maxwind_kph > 0)
+                            text += " Porywy wiatru do " + String.Join(" przecinek ", forecastDay.maxwind_kph.ToString().Split(',').ToArray()) + " kilometrów na godzinę";
+                        else
+                            text += "Brak wiatru";
 
-                    if (forecastDay.totalprecip_mm > 0)
-                        text += ". Suma opadów wyniesie " + String.Join(" przecinek ", forecastDay.totalprecip_mm.ToString().Split(',').ToArray()) + " milimetrów.";
-                    else
-                        text += " oraz brak opadów.";
+                        if (forecastDay.totalprecip_mm > 0)
+                            text += ". Suma opadów wyniesie " + String.Join(" przecinek ", forecastDay.totalprecip_mm.ToString().Split(',').ToArray()) + " milimetrów.";
+                        else
+                            text += " oraz brak opadów.";
 
-                    txt = text;
-                    ss.SpeakAsync(txt);
+                        txt = text;
+
+
+                    }));
+                    if (txt != "")
+                        ss.SpeakAsync(txt);
                 }
 
                 //new Task(() => {
