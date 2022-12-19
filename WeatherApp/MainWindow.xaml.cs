@@ -550,20 +550,20 @@ namespace WeatherApp
                         if (forecastDay.avgtemp_c != 0)
                         {
                             if (forecastDay.avgtemp_c > 0)
-                                text += String.Join(" przecinek ", forecastDay.avgtemp_c.ToString().Split(',').ToArray()) + " stopni celsjusza.";
+                                text += String.Join(" przecinek ", forecastDay.avgtemp_c.ToString().Split(',').ToArray().Select(x => x.Replace("0", "zero")).ToArray()) + " stopni celsjusza.";
                             else
-                                text += String.Join(" przecinek ", (forecastDay.avgtemp_c * -1).ToString().Split(',').ToArray()) + " stopni celsjusza.";
+                                text += String.Join(" przecinek ", (forecastDay.avgtemp_c * -1).ToString().Split(',').ToArray().Select(x => x.Replace("0", "zero")).ToArray()) + " stopni celsjusza.";
                         }
                         else
                             text += "zero stopni celsjusza.";
 
                         if (forecastDay.maxwind_kph > 0)
-                            text += " Porywy wiatru do " + String.Join(" przecinek ", forecastDay.maxwind_kph.ToString().Split(',').ToArray()) + " kilometrów na godzinę";
+                            text += " Porywy wiatru do " + String.Join(" przecinek ", forecastDay.maxwind_kph.ToString().Split(',').ToArray().Select(x => x.Replace("0", "zero")).ToArray()) + " kilometrów na godzinę";
                         else
                             text += "Brak wiatru";
 
                         if (forecastDay.totalprecip_mm > 0)
-                            text += ". Suma opadów wyniesie " + String.Join(" przecinek ", forecastDay.totalprecip_mm.ToString().Split(',').ToArray()) + " milimetrów.";
+                            text += ". Suma opadów wyniesie " + String.Join(" przecinek ", forecastDay.totalprecip_mm.ToString().Split(',').ToArray().Select(x => x.Replace("0", "zero")).ToArray()) + " milimetrów.";
                         else
                             text += " oraz brak opadów.";
 
@@ -572,7 +572,7 @@ namespace WeatherApp
 
                     }));
                     if (txt != "")
-                        ss.SpeakAsync(txt);
+                        ss.Speak(txt);
                 }
 
                 //new Task(() => {
