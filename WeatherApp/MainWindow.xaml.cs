@@ -4,29 +4,14 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reflection.Emit;
-using System.Security.Policy;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WeatherApp.Models;
-using static System.Net.Mime.MediaTypeNames;
 
 
 namespace WeatherApp
@@ -68,30 +53,28 @@ namespace WeatherApp
 
     public partial class MainWindow : Window
     {
-        private readonly BackgroundWorker worker = new BackgroundWorker();
+        private readonly ApplicationDbContext _context;
+
         static SpeechSynthesizer ss;
         static SpeechRecognitionEngine sre;
         DzienTygodnia dzienTygodnia;
         Miasto miasto;
         static HttpClient client;
 
-        Dictionary<Miasto, Locate> locations;
-
         public MainWindow()
         {
             ss = new SpeechSynthesizer();
             sre = new SpeechRecognitionEngine();
             InitializeComponent();
+
+            _context = new ApplicationDbContext();
+            DbInitializer initializer = new DbInitializer(_context);
+            initializer.Seed();
+
             label_today.Content = "Dziś: " + DateTime.Now.ToString("dddd, dd MMMM yyyy");
             panel.Visibility = Visibility.Hidden;
 
-            //worker.DoWork += Worker_DoWork; 
-            //worker.RunWorkerAsync();
-
             client = new HttpClient();
-            locations = new Dictionary<Miasto, Locate>();
-            UpdateDictionary();
-            //FakeInvoke();
 
             new Task(async() =>
             {
@@ -111,32 +94,6 @@ namespace WeatherApp
                 sre.RecognizeAsync(RecognizeMode.Multiple);
             }).Start();
             
-        }
-
-        private void FakeInvoke()
-        {
-            dzienTygodnia = DzienTygodnia.Piątek;
-            miasto = Miasto.Warszawa;
-
-            GetWeather();
-        }
-
-        private void Worker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            ss.SetOutputToDefaultAudioDevice();
-            ss.Speak("Witamy w naszej stacji pogodowej");
-            CultureInfo ci = new CultureInfo("pl-PL");
-            sre = new SpeechRecognitionEngine(ci);
-            sre.SetInputToDefaultAudioDevice();
-
-            sre.SpeechRecognized += Sre_SpeechRecognized;
-            sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected;
-
-            Grammar stop_grammar = new Grammar(".\\Grammar\\MainGrammar.xml");
-            stop_grammar.Enabled = true;
-            sre.LoadGrammar(stop_grammar);
-            ss.Speak("Powiedz nam dla jakiego miasta i w którym dniu tygodnia chcesz poznać pogodę");
-            sre.RecognizeAsync(RecognizeMode.Multiple);
         }
 
         private void Sre_SpeechRecognitionRejected(object sender, SpeechRecognitionRejectedEventArgs e)
@@ -501,9 +458,12 @@ namespace WeatherApp
 
             try
             {
-                Locate loc = locations[miasto];
-                string path = "http://api.weatherapi.com/v1/forecast.json?key=181d5bb3b0404ddfa28214722221312&q=" + loc.lat.ToString().Replace(',', '.') 
-                    + "," + loc.lon.ToString().Replace(',', '.') + "&days=7&aqi=no&alerts=no";
+                var city = _context.Cities.FirstOrDefault(x => x.Name == miasto.ToString());
+                if (city == null)
+                    throw new Exception();
+
+                string path = "http://api.weatherapi.com/v1/forecast.json?key=181d5bb3b0404ddfa28214722221312&q=" + city.Latitude.ToString().Replace(',', '.') 
+                    + "," + city.Longitude.ToString().Replace(',', '.') + "&days=7&aqi=no&alerts=no";
 
                 var json = await GetWeatherAsync(path);
                 Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(json);
@@ -534,6 +494,13 @@ namespace WeatherApp
                         var forecastDay = forecast[distant].day;
 
                         DateTime dateWeather = DateTime.ParseExact(forecast[distant].date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                        _context.Queries.Add(new Entity.Query()
+                        {
+                            City = city,
+                            Date = dateWeather
+                        });
+                        _context.SaveChanges();
 
                         label_date.Content = "Data: " + dateWeather.ToString("dddd, dd MMMM yyyy");
 
@@ -574,11 +541,6 @@ namespace WeatherApp
                     if (txt != "")
                         ss.Speak(txt);
                 }
-
-                //new Task(() => {
-                //    if (txt != "")
-                //        ss.SpeakAsync(txt);
-                //}).Start();
             }
             catch (Exception)
             {
@@ -602,28 +564,6 @@ namespace WeatherApp
             sre.SpeechRecognized += Sre_SpeechRecognized;
             sre.SpeechRecognitionRejected += Sre_SpeechRecognitionRejected;
             ss.Speak("Powiedz nam dla jakiego miasta i w którym dniu tygodnia chcesz poznać pogodę");
-        }
-
-        private void UpdateDictionary()
-        {
-            locations[Miasto.Białystok] = new Locate(53.105010, 23.167102);
-            locations[Miasto.Bydgoszcz] = new Locate(53.117735, 18.007736);
-            locations[Miasto.Gdańsk] = new Locate(54.343229, 18.628444);
-            locations[Miasto.GorzówWielkopolski] = new Locate(52.720899, 15.251780);
-            locations[Miasto.Katowice] = new Locate(50.249859, 19.017038);
-            locations[Miasto.Kielce] = new Locate(50.851569, 20.621034);
-            locations[Miasto.Kraków] = new Locate(50.056293, 19.944799);
-            locations[Miasto.Lublin] = new Locate(51.230485, 22.570839);
-            locations[Miasto.Łódź] = new Locate(51.750786, 19.459598);
-            locations[Miasto.Olsztyn] = new Locate(53.770330, 20.485700);
-            locations[Miasto.Opole] = new Locate(50.656383, 17.944921);
-            locations[Miasto.Poznań] = new Locate(52.383711, 16.920281);
-            locations[Miasto.Rzeszów] = new Locate(50.000451, 21.999156);
-            locations[Miasto.Szczecin] = new Locate(53.408263, 14.541918);
-            locations[Miasto.Toruń] = new Locate(53.003502, 18.627307);
-            locations[Miasto.Warszawa] = new Locate(52.199253, 21.022641);
-            locations[Miasto.Wrocław] = new Locate(51.085213, 17.048414);
-            locations[Miasto.ZielonaGóra] = new Locate(51.922847, 15.498385);
         }
 
         static async Task<string> GetWeatherAsync(string path)

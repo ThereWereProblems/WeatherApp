@@ -5,32 +5,36 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WeatherApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="650" Width="1000"
-        ResizeMode="NoResize">
+        Title="Stacja pogodowa" Height="650" Width="1000"
+        ResizeMode="NoResize" Icon="/sun.ico">
     <Grid>
-        <Image Height="639" Margin="10,0,0,0" VerticalAlignment="Center" Source="/Map.png" HorizontalAlignment="Left" Width="661"/>
-        <Label x:Name="label_gdansk" Canvas.ZIndex="3" Content="Gdańsk" Margin="269,25,0,0" HorizontalAlignment="Left" Width="85" Height="26" VerticalAlignment="Top"/>
-        <Label x:Name="label_olsztyn" Canvas.ZIndex="3" Content="Olsztyn" Margin="386,84,0,0" HorizontalAlignment="Left" Width="62" Height="26" VerticalAlignment="Top"/>
-        <Label x:Name="label_szczecin" Canvas.ZIndex="3" Content="Szczecin" Margin="49,143,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="87"/>
-        <Label x:Name="label_gorzow" Canvas.ZIndex="3" Content="Gorzów Wlkp." Margin="49,219,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="103"/>
-        <Label x:Name="label_bydgoszcz" Canvas.ZIndex="3" Content="Bydgoszcz" Margin="248,151,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="92"/>
-        <Label x:Name="label_torun" Canvas.ZIndex="3" Content="Toruń" Margin="285,196,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="55"/>
-        <Label x:Name="label_zielona" Canvas.ZIndex="3" Content="Zielona Góra" Margin="63,301,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="110"/>
-        <Label x:Name="label_lodz" Canvas.ZIndex="3" Content="Łódź" Margin="348,290,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="54"/>
-        <Label x:Name="label_poznan" Canvas.ZIndex="3" Content="Poznań" Margin="167,227,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="76"/>
-        <Label x:Name="label_bialystok" Canvas.ZIndex="3" Content="Białystok" Margin="538,146,0,0" HorizontalAlignment="Left" Width="78" Height="26" VerticalAlignment="Top"/>
-        <Label x:Name="label_warszawa" Canvas.ZIndex="3" Content="Warszawa" Margin="438,246,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="80"/>
-        <Label x:Name="label_lublin" Canvas.ZIndex="3" Content="Lublin" Margin="540,348,0,0" HorizontalAlignment="Left" Width="69" Height="26" VerticalAlignment="Top"/>
-        <Label x:Name="label_wroclaw" Canvas.ZIndex="3" Content="Wrocław" Margin="149,365,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="73"/>
-        <Label x:Name="label_kielce" Canvas.ZIndex="3" Content="Kielce" Margin="428,393,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="72"/>
-        <Label x:Name="label_opole" Canvas.ZIndex="3" Content="Opole" Margin="248,411,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="77"/>
-        <Label x:Name="label_katowice" Canvas.ZIndex="3" Content="Katowice" Margin="296,458,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="87"/>
-        <Label x:Name="label_krakow" Canvas.ZIndex="3" Content="Kraków" Margin="386,508,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="68"/>
-        <Label x:Name="label_rzeszow" Canvas.ZIndex="3" Content="Rzeszów" Margin="500,476,0,0" HorizontalAlignment="Left" Width="84" Height="26" VerticalAlignment="Top"/>
-        <Label x:Name="label_today" Content="Dziś: " HorizontalAlignment="Left" Margin="676,25,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold"/>
-        <Label x:Name="label_city" Content="Miasto: " HorizontalAlignment="Left" Margin="678,97,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="14"/>
-        <Label x:Name="label_date" Content="Data: " HorizontalAlignment="Left" Margin="678,128,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="14"/>
-        <Grid x:Name="panel">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="49*"/>
+            <ColumnDefinition Width="951*"/>
+        </Grid.ColumnDefinitions>
+        <Image Height="639" Margin="10,0,0,0" VerticalAlignment="Center" Source="/Map.png" HorizontalAlignment="Left" Width="661" Grid.ColumnSpan="2"/>
+        <Label x:Name="label_gdansk" Canvas.ZIndex="3" Content="Gdańsk" Margin="220,25,0,0" HorizontalAlignment="Left" Width="85" Height="26" VerticalAlignment="Top" Grid.Column="1"/>
+        <Label x:Name="label_olsztyn" Canvas.ZIndex="3" Content="Olsztyn" Margin="337,84,0,0" HorizontalAlignment="Left" Width="62" Height="26" VerticalAlignment="Top" Grid.Column="1"/>
+        <Label x:Name="label_szczecin" Canvas.ZIndex="3" Content="Szczecin" Margin="0,143,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="87" Grid.Column="1"/>
+        <Label x:Name="label_gorzow" Canvas.ZIndex="3" Content="Gorzów Wlkp." Margin="0,219,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="103" Grid.Column="1"/>
+        <Label x:Name="label_bydgoszcz" Canvas.ZIndex="3" Content="Bydgoszcz" Margin="199,151,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="92" Grid.Column="1"/>
+        <Label x:Name="label_torun" Canvas.ZIndex="3" Content="Toruń" Margin="236,196,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="55" Grid.Column="1"/>
+        <Label x:Name="label_zielona" Canvas.ZIndex="3" Content="Zielona Góra" Margin="14,301,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="110" Grid.Column="1"/>
+        <Label x:Name="label_lodz" Canvas.ZIndex="3" Content="Łódź" Margin="299,290,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="54" Grid.Column="1"/>
+        <Label x:Name="label_poznan" Canvas.ZIndex="3" Content="Poznań" Margin="118,227,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="76" Grid.Column="1"/>
+        <Label x:Name="label_bialystok" Canvas.ZIndex="3" Content="Białystok" Margin="489,146,0,0" HorizontalAlignment="Left" Width="78" Height="26" VerticalAlignment="Top" Grid.Column="1"/>
+        <Label x:Name="label_warszawa" Canvas.ZIndex="3" Content="Warszawa" Margin="389,246,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="80" Grid.Column="1"/>
+        <Label x:Name="label_lublin" Canvas.ZIndex="3" Content="Lublin" Margin="491,348,0,0" HorizontalAlignment="Left" Width="69" Height="26" VerticalAlignment="Top" Grid.Column="1"/>
+        <Label x:Name="label_wroclaw" Canvas.ZIndex="3" Content="Wrocław" Margin="100,365,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="73" Grid.Column="1"/>
+        <Label x:Name="label_kielce" Canvas.ZIndex="3" Content="Kielce" Margin="379,393,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="72" Grid.Column="1"/>
+        <Label x:Name="label_opole" Canvas.ZIndex="3" Content="Opole" Margin="199,411,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="77" Grid.Column="1"/>
+        <Label x:Name="label_katowice" Canvas.ZIndex="3" Content="Katowice" Margin="247,458,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="87" Grid.Column="1"/>
+        <Label x:Name="label_krakow" Canvas.ZIndex="3" Content="Kraków" Margin="337,508,0,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="68" Grid.Column="1"/>
+        <Label x:Name="label_rzeszow" Canvas.ZIndex="3" Content="Rzeszów" Margin="451,476,0,0" HorizontalAlignment="Left" Width="84" Height="26" VerticalAlignment="Top" Grid.Column="1"/>
+        <Label x:Name="label_today" Content="Dziś: " HorizontalAlignment="Left" Margin="627,25,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Grid.Column="1"/>
+        <Label x:Name="label_city" Content="Miasto: " HorizontalAlignment="Left" Margin="629,97,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="14" Grid.Column="1"/>
+        <Label x:Name="label_date" Content="Data: " HorizontalAlignment="Left" Margin="629,128,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="14" Grid.Column="1"/>
+        <Grid x:Name="panel" Grid.ColumnSpan="2">
             <Image x:Name="icon_weather" HorizontalAlignment="Left" Height="100" Margin="678,169,0,0" VerticalAlignment="Top" Width="100"/>
             <Label x:Name="label_temp" Content="Średnia temperatura: " HorizontalAlignment="Left" Margin="678,273,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
             <Label x:Name="label_temp_max" Content="Maksymalna temperatura: " HorizontalAlignment="Left" Margin="678,299,0,0" VerticalAlignment="Top"/>
